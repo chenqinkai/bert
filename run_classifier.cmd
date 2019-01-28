@@ -1,0 +1,2 @@
+set CUDA_VISIBLE_DEVICES=-1
+python run_classifier.py --task_name=TWEET --do_train=true --do_eval=false --data_dir="D:\data\bert_news_sentiment" --vocab_file="D:\data\nlp\bert\uncased_L-12_H-768_A-12\vocab.txt" --bert_config_file="D:\data\nlp\bert\uncased_L-12_H-768_A-12\bert_config.json" --init_checkpoint="D:\data\nlp\bert\uncased_L-12_H-768_A-12\bert_model.ckpt" --max_seq_length=16 --train_batch_size=500 --learning_rate=2e-4 --num_train_epochs=3.0 --output_dir="D:\data\tmp"
