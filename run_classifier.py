@@ -408,7 +408,6 @@ class TweetProcessor(DataProcessor):
             if set_type == "test":
                 text_a = tokenization.convert_to_unicode(line[1])
                 label = "0"
-                print(text_a)  # debug
             else:
                 text_a = tokenization.convert_to_unicode(line[1])
                 label = tokenization.convert_to_unicode(line[6])
