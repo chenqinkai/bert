@@ -416,6 +416,46 @@ class TweetProcessor(DataProcessor):
         return examples
 
 
+class ReutersProcessor(DataProcessor):
+    """Processor for reuters data set."""
+
+    def get_train_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "training_horizon_3_percentile_10.tsv")), "train")
+
+    def get_dev_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "test_horizon_3.tsv")), "dev")
+
+    def get_test_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "test_horizon_3.tsv")), "test")
+
+    def get_labels(self):
+        """See base class."""
+        return ["0", "1"]
+
+    def _create_examples(self, lines, set_type):
+        """Creates examples for the training and dev sets."""
+        examples = []
+        for (i, line) in enumerate(lines):
+            if i == 0:
+                continue
+            guid = "%s-%s" % (set_type, i)
+            if set_type == "test":
+                text_a = tokenization.convert_to_unicode(line[3])
+                label = "0"
+            else:
+                text_a = tokenization.convert_to_unicode(line[3])
+                label = tokenization.convert_to_unicode(line[12])
+            examples.append(
+                InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
+        return examples
+
+
 def convert_single_example(ex_index, example, label_list, max_seq_length,
                            tokenizer):
     """Converts a single `InputExample` into a single `InputFeatures`."""
@@ -843,6 +883,7 @@ def main(_):
         "mrpc": MrpcProcessor,
         "xnli": XnliProcessor,
         "tweet": TweetProcessor,
+        "reuters": ReutersProcessor,
     }
 
     tokenization.validate_case_matches_checkpoint(FLAGS.do_lower_case,
