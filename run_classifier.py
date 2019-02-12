@@ -441,8 +441,12 @@ class ReutersProcessor(DataProcessor):
     def _create_examples(self, lines, set_type):
         """Creates examples for the training and dev sets."""
         examples = []
+        counter = 0
         for (i, line) in enumerate(lines):
             if i == 0:
+                continue
+            if len(line) != 13:
+                counter += 1
                 continue
             guid = "%s-%s" % (set_type, i)
             if set_type == "test":
@@ -453,6 +457,7 @@ class ReutersProcessor(DataProcessor):
                 label = tokenization.convert_to_unicode(line[12])
             examples.append(
                 InputExample(guid=guid, text_a=text_a, text_b=None, label=label))
+        print(counter)
         return examples
 
 
