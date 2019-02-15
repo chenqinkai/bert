@@ -910,6 +910,7 @@ def load_prediction(prediction_tsv_path):
     with tf.gfile.Open(prediction_tsv_path, 'r') as f:
         df_pred = pd.read_csv(f, sep='\t', header=None)
         print(df_pred)
+        print((df_pred[1] - 0.5).tolist())
     return (df_pred[1] - 0.5).tolist()
 
 
