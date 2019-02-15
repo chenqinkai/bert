@@ -909,8 +909,8 @@ def load_prediction(prediction_tsv_path):
     """
     with tf.gfile.Open(prediction_tsv_path, 'r') as f:
         df_pred = pd.read_csv(f, sep='\t', header=None)
-        print(df_pred)
-        print((df_pred[1] - 0.5).tolist())
+        # print(df_pred)
+        # print((df_pred[1] - 0.5).tolist())
     return (df_pred[1] - 0.5).tolist()
 
 
@@ -1114,7 +1114,7 @@ def main(_):
         s = pd.Series()
         for p in range(1, 99):
             s.set_value(1 - p, get_accuracy(df_news,
-                                            FLAGS.predict_col_name, prediction, p))
+                                            FLAGS.predict_col_name, prediction_list, p))
         fig = plt.figure()
         s.sort_index().plot()
         with tf.gfile.GFile(os.path.join(FLAGS.output_dir, "result_plot.png")) as f:
