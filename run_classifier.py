@@ -131,6 +131,7 @@ flags.DEFINE_string("dev_tsv_name", None, "dev tsv name")
 flags.DEFINE_string("test_tsv_name", None, "test tsv name")
 flags.DEFINE_string("predict_col_name", None, "predict column name")
 
+
 class InputExample(object):
     """A single training/test example for simple sequence classification."""
 
@@ -889,7 +890,8 @@ def get_accuracy(df_news, predict_col_name, prediction, percentile):
     """
         type(prediction): list, which contains the score of the news
     """
-    assert df_news.shape[0] == len(prediction)
+    assert df_news.shape[0] == len(prediction), "df_news contain %d lines while prediction contains %d lines" % (
+        df_news.shape[0], len(prediction))
     df_news["prediction"] = prediction
     th_negative = np.percentile(prediction, percentile / 2)
     th_positive = np.percentile(prediction, 100 - percentile / 2)
@@ -1109,12 +1111,12 @@ def main(_):
         prediction_list = load_prediction(output_predict_file)
         s = pd.Series()
         for p in range(1, 99):
-            s.set_value(1 - p, get_accuracy(df_news, FLAGS.predict_col_name, prediction, p))
+            s.set_value(1 - p, get_accuracy(df_news,
+                                            FLAGS.predict_col_name, prediction, p))
         fig = plt.figure()
         s.sort_index().plot()
         with tf.gfile.GFile(os.path.join(FLAGS.output_dir, "result_plot.png")) as f:
             fig.savefig(f)
-
 
 
 if __name__ == "__main__":
