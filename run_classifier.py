@@ -1118,7 +1118,7 @@ def main(_):
                                             FLAGS.predict_col_name, prediction_list, p))
         fig = plt.figure()
         s.sort_index().plot()
-        with tf.gfile.GFile(os.path.join(FLAGS.output_dir, "result_plot.png")) as f:
+        with tf.gfile.GFile(os.path.join(FLAGS.output_dir, "result_plot.png"), 'w') as f:
             fig.savefig(f)
 
 
