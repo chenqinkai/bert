@@ -14,17 +14,19 @@
 # limitations under the License.
 """BERT finetuning runner."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from __future__ import absolute_import, division, print_function
 
 import collections
 import csv
 import os
+
+import pandas as pd
+import tensorflow as tf
+from matplotlib import pyplot as plt
+
 import modeling
 import optimization
 import tokenization
-import tensorflow as tf
 
 flags = tf.flags
 
@@ -1101,8 +1103,6 @@ def main(_):
                 num_written_lines += 1
         assert num_written_lines == num_actual_predict_examples
 
-        import pandas as pd
-        from matplotlib import pyplot as plt
         df_news = pd.read_csv(os.path.join(
             FLAGS.data_dir, FLAGS.test_tsv_name), sep='\t', index_col=0)
         prediction_list = load_prediction(output_predict_file)
