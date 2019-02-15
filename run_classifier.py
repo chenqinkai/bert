@@ -1114,7 +1114,7 @@ def main(_):
         prediction_list = load_prediction(output_predict_file)
         s = pd.Series()
         for p in range(1, 99):
-            s.set_value(1 - p, get_accuracy(df_news,
+            s.set_value(100 - p, get_accuracy(df_news,
                                             FLAGS.predict_col_name, prediction_list, p))
         fig = plt.figure()
         s.sort_index().plot()
