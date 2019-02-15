@@ -422,17 +422,17 @@ class ReutersProcessor(DataProcessor):
     def get_train_examples(self, data_dir):
         """See base class."""
         return self._create_examples(
-            self._read_tsv(os.path.join(data_dir, "training_horizon_3_percentile_10.tsv")), "train")
+            self._read_tsv(os.path.join(data_dir, FLAGS.train_tsv_name)), "train")
 
     def get_dev_examples(self, data_dir):
         """See base class."""
         return self._create_examples(
-            self._read_tsv(os.path.join(data_dir, "test_horizon_3.tsv")), "dev")
+            self._read_tsv(os.path.join(data_dir, FLAGS.dev_tsv_name)), "dev")
 
     def get_test_examples(self, data_dir):
         """See base class."""
         return self._create_examples(
-            self._read_tsv(os.path.join(data_dir, "test_horizon_3.tsv")), "test")
+            self._read_tsv(os.path.join(data_dir, FLAGS.test_tsv_name)), "test")
 
     def get_labels(self):
         """See base class."""
@@ -879,6 +879,30 @@ def convert_examples_to_features(examples, label_list, max_seq_length,
     return features
 
 
+def get_accuracy(df_news, predict_col_name, prediction, percentile):
+    """
+        type(prediction): list, which contains the score of the news
+    """
+    assert df_news.shape[0] == len(prediction)
+    df_news["prediction"] = prediction
+    th_negative = np.percentile(prediction, percentile / 2)
+    th_positive = np.percentile(prediction, 100 - percentile / 2)
+    df_partial = df_news[(df_news["prediction"] < th_negative) | (
+        df_news["prediction"] > th_positive)]
+    total = df_partial.shape[0]
+    correct = df_partial[np.sign(df_partial[predict_col_name]) == np.sign(
+        df_partial["prediction"])].shape[0]
+    return correct / float(total)
+
+
+def load_prediction(prediction_tsv_path):
+    """
+        load prediction into a list from tsv
+    """
+    df_pred = pd.read_csv(prediction_csv_path, sep='\t', header=None)
+    return (df_pred[1] - 0.5).tolist()
+
+
 def main(_):
     tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -1072,6 +1096,19 @@ def main(_):
                 writer.write(output_line)
                 num_written_lines += 1
         assert num_written_lines == num_actual_predict_examples
+
+        import pandas as pd
+        from matplotlib import pyplot as plt
+        df_news = pd.read_csv(os.path.join(
+            FLAGS.data_dir, FLAGS.test_tsv_name), sep='\t', index_col=0)
+        prediction_list = load_prediction(output_predict_file)
+        s = pd.Series()
+        for p in range(1, 99):
+            s.set_value(1 - p, get_accuracy(df_news, FLAGS.predict_col_name, prediction, p))
+        fig = plt.figure()
+        s.sort_index().plot()
+        fig.savefig(os.path.join(FLAGS.output_dir, "result_plot.png"))
+
 
 
 if __name__ == "__main__":
