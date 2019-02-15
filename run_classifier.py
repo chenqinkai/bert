@@ -905,7 +905,8 @@ def load_prediction(prediction_tsv_path):
     """
         load prediction into a list from tsv
     """
-    df_pred = pd.read_csv(prediction_csv_path, sep='\t', header=None)
+    with tf.gfile.Open(prediction_tsv_path, 'r') as f:
+        df_pred = pd.read_csv(f, sep='\t', header=None)
     return (df_pred[1] - 0.5).tolist()
 
 
@@ -1103,15 +1104,16 @@ def main(_):
                 num_written_lines += 1
         assert num_written_lines == num_actual_predict_examples
 
-        df_news = pd.read_csv(os.path.join(
-            FLAGS.data_dir, FLAGS.test_tsv_name), sep='\t', index_col=0)
+        with tf.gfile.Open(os.path.join(FLAGS.data_dir, FLAGS.test_tsv_name), 'r') as f:
+            df_news = pd.read_csv(f, sep='\t', index_col=0)
         prediction_list = load_prediction(output_predict_file)
         s = pd.Series()
         for p in range(1, 99):
             s.set_value(1 - p, get_accuracy(df_news, FLAGS.predict_col_name, prediction, p))
         fig = plt.figure()
         s.sort_index().plot()
-        fig.savefig(os.path.join(FLAGS.output_dir, "result_plot.png"))
+        with tf.gfile.GFile(os.path.join(FLAGS.output_dir, "result_plot.png")) as f:
+            fig.savefig(f)
 
 
 
