@@ -124,10 +124,10 @@ flags.DEFINE_integer(
     "num_tpu_cores", 8,
     "Only used if `use_tpu` is True. Total number of TPU cores to use.")
 
-flags.DEFINE_string("train_tsv_name", None)
-flags.DEFINE_string("dev_tsv_name", None)
-flags.DEFINE_string("test_tsv_name", None)
-flags.DEFINE_string("predict_col_name", None)
+flags.DEFINE_string("train_tsv_name", None, "training tsv name")
+flags.DEFINE_string("dev_tsv_name", None, "dev tsv name")
+flags.DEFINE_string("test_tsv_name", None, "test tsv name")
+flags.DEFINE_string("predict_col_name", None, "predict column name")
 
 class InputExample(object):
     """A single training/test example for simple sequence classification."""
