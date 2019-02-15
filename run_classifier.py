@@ -909,6 +909,7 @@ def load_prediction(prediction_tsv_path):
     """
     with tf.gfile.Open(prediction_tsv_path, 'r') as f:
         df_pred = pd.read_csv(f, sep='\t', header=None)
+        print(df_pred)
     return (df_pred[1] - 0.5).tolist()
 
 
@@ -1091,7 +1092,7 @@ def main(_):
         result = estimator.predict(input_fn=predict_input_fn)
 
         output_predict_file = os.path.join(
-            FLAGS.output_dir, "%s_test_results.tsv" % FLAGS.test_tsv_name)
+            FLAGS.output_dir, "%s_test_results.tsv" % FLAGS.test_tsv_name.rstrip(".tsv"))
         with tf.gfile.GFile(output_predict_file, "w") as writer:
             num_written_lines = 0
             tf.logging.info("***** Predict results *****")
