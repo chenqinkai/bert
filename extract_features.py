@@ -83,6 +83,11 @@ flags.DEFINE_bool(
     "if True, embedding for [CLS] will be added to output matrix."
 )
 
+flags.DEFINE_bool(
+    "generate_json", False,
+    "if True, generate corresponding json file."
+)
+
 
 class InputExample(object):
 
@@ -393,39 +398,38 @@ def main(_):
     input_fn = input_fn_builder(
         features=features, seq_length=FLAGS.max_seq_length)
 
-    # with codecs.getwriter("utf-8")(tf.gfile.Open(FLAGS.output_file,
-    #                                              "w")) as writer:
-    #     for result in estimator.predict(input_fn, yield_single_examples=True):
-    #         unique_id = int(result["unique_id"])
-    #         feature = unique_id_to_feature[unique_id]
-    #         output_json = collections.OrderedDict()
-    #         output_json["linex_index"] = unique_id
-    #         all_features = []
-    #         for (i, token) in enumerate(feature.tokens):
-    #             all_layers = []
-    #             for (j, layer_index) in enumerate(layer_indexes):
-    #                 layer_output = result["layer_output_%d" % j]
-    #                 layers = collections.OrderedDict()
-    #                 layers["index"] = layer_index
-    #                 layers["values"] = [
-    #                     round(float(x), 6) for x in layer_output[i:(i + 1)].flat
-    #                 ]
-    #                 all_layers.append(layers)
-    #             features = collections.OrderedDict()
-    #             features["token"] = token
-    #             features["layers"] = all_layers
-    #             all_features.append(features)
-    #         output_json["features"] = all_features
-    #         writer.write(json.dumps(output_json) + "\n")
+    if FLAGS.generate_json:
+        with codecs.getwriter("utf-8")(tf.gfile.Open(FLAGS.output_file[:-3] + "jsonl",
+                                                     "w")) as writer:
+            for result in estimator.predict(input_fn, yield_single_examples=True):
+                unique_id = int(result["unique_id"])
+                feature = unique_id_to_feature[unique_id]
+                output_json = collections.OrderedDict()
+                output_json["linex_index"] = unique_id
+                all_features = []
+                for (i, token) in enumerate(feature.tokens):
+                    all_layers = []
+                    for (j, layer_index) in enumerate(layer_indexes):
+                        layer_output = result["layer_output_%d" % j]
+                        layers = collections.OrderedDict()
+                        layers["index"] = layer_index
+                        layers["values"] = [
+                            round(float(x), 6) for x in layer_output[i:(i + 1)].flat
+                        ]
+                        all_layers.append(layers)
+                    features = collections.OrderedDict()
+                    features["token"] = token
+                    features["layers"] = all_layers
+                    all_features.append(features)
+                output_json["features"] = all_features
+                writer.write(json.dumps(output_json) + "\n")
 
     with tf.gfile.Open(FLAGS.output_file, "w") as f:
         final_matrix = []
         for i, result in enumerate(estimator.predict(input_fn, yield_single_examples=True)):
-            print("nb: %d" % i)
             layer_output = result["layer_output_0"]
             # print(layer_output)
             final_matrix.append(layer_output)
-            print(np.array(final_matrix).shape)
         np.save(f, np.array(final_matrix))
 
 
