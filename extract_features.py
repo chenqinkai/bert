@@ -365,7 +365,7 @@ def read_examples(input_file, clean_text=False):
             m = re.match(r"^(.*) \|\|\| (.*)$", line)
             if m is None:
                 if clean_text:
-                    line = clean_headline(line)
+                    line = clean_headline(line, stopwords_en)
                 text_a = line
             else:
                 text_a = m.group(1)
