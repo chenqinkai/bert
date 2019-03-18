@@ -17,6 +17,7 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from nltk.corpus import stopwords
 
 import codecs
 import collections
@@ -86,6 +87,11 @@ flags.DEFINE_bool(
 flags.DEFINE_bool(
     "generate_json", False,
     "if True, generate corresponding json file."
+)
+
+flags.DEFINE_bool(
+    "remove_stopwords", False,
+    "if True, remove stopwords before extracting features"
 )
 
 
@@ -330,8 +336,22 @@ def _truncate_seq_pair(tokens_a, tokens_b, max_length):
             tokens_b.pop()
 
 
-def read_examples(input_file):
+def clean_headline(headline, stopwords):
+    kept_words = []
+    for word in headline.split():
+        word = word.strip()
+        if word in stopwords:
+            continue
+        if not re.match(r"^[a-zA-Z0-9]*$", word):
+            continue
+        else:
+            kept_words.append(word)
+    return ' '.join(kept_words)
+
+
+def read_examples(input_file, clean_text=False):
     """Read a list of `InputExample`s from an input file."""
+    stopwords_en = set(stopwords.words('english'))
     examples = []
     unique_id = 0
     with tf.gfile.GFile(input_file, "r") as reader:
@@ -344,6 +364,8 @@ def read_examples(input_file):
             text_b = None
             m = re.match(r"^(.*) \|\|\| (.*)$", line)
             if m is None:
+                if clean_text:
+                    line = clean_headline(line)
                 text_a = line
             else:
                 text_a = m.group(1)
@@ -371,7 +393,8 @@ def main(_):
             num_shards=FLAGS.num_tpu_cores,
             per_host_input_for_training=is_per_host))
 
-    examples = read_examples(FLAGS.input_file)
+    examples = read_examples(
+        FLAGS.input_file, clean_text=FLAGS.remove_stopwords)
 
     features = convert_examples_to_features(
         examples=examples, seq_length=FLAGS.max_seq_length, tokenizer=tokenizer)
