@@ -454,7 +454,7 @@ def main(_):
         for i, result in enumerate(estimator.predict(input_fn, yield_single_examples=True)):
             layer_output = result["layer_output_0"].astype(np.float16)
             # print(layer_output.dtype)  # float16
-            np.append(final_matrix, np.array(
+            final_matrix = np.append(final_matrix, np.array(
                 [layer_output], dtype=np.float16), axis=0)
         print("We finished generating matrix")
         # final_matrix = np.array(final_matrix)
