@@ -450,12 +450,11 @@ def main(_):
 
     with tf.gfile.Open(FLAGS.output_file, "w") as f:
         final_matrix = np.empty(
-            (0, FLAGS.max_seq_length, 768), dtype=np.float16)
+            (len(examples), FLAGS.max_seq_length, 768), dtype=np.float16)
         for i, result in enumerate(estimator.predict(input_fn, yield_single_examples=True)):
             layer_output = result["layer_output_0"].astype(np.float16)
             # print(layer_output.dtype)  # float16
-            final_matrix = np.append(final_matrix, np.array(
-                [layer_output], dtype=np.float16), axis=0)
+            final_matrix[i] = layer_output
         print("We finished generating matrix")
         # final_matrix = np.array(final_matrix)
         np.save(f, final_matrix)
