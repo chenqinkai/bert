@@ -454,7 +454,10 @@ def main(_):
             layer_output = result["layer_output_0"].astype(np.float16)
             # print(layer_output.dtype)  # float16
             final_matrix.append(layer_output)
-        np.save(f, np.array(final_matrix))
+        print("We finished generating matrix")
+        final_matrix = np.array(final_matrix)
+        print("We finished converting matrix")
+        np.save(f, final_matrix)
 
 
 if __name__ == "__main__":
