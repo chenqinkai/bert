@@ -449,15 +449,17 @@ def main(_):
                 writer.write(json.dumps(output_json) + "\n")
 
     with tf.gfile.Open(FLAGS.output_file, "w") as f:
-        final_matrix = []
+        final_matrix = np.empty(
+            (0, flags.max_seq_length, 768), dtype=np.float16)
         for i, result in enumerate(estimator.predict(input_fn, yield_single_examples=True)):
             layer_output = result["layer_output_0"].astype(np.float16)
             # print(layer_output.dtype)  # float16
-            final_matrix.append(layer_output)
+            np.append(final_matrix, np.array(
+                [layer_output], dtype=np.float16), axis=0)
         print("We finished generating matrix")
-        final_matrix = np.array(final_matrix)
-        print("We finished converting matrix")
+        # final_matrix = np.array(final_matrix)
         np.save(f, final_matrix)
+        print("We finished saving matrix")
 
 
 if __name__ == "__main__":
